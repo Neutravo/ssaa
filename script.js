@@ -61,6 +61,7 @@ let monthlySteps = [];
 let isPlaying = false;
 let playInterval = null;
 const PLAY_SPEED_MS = 500;
+let hasInteracted = false; // Flag to control initial marker visibility
 
 // Map to track active markers: { featureId: markerInstance }
 const activeMarkers = new Map();
@@ -206,7 +207,7 @@ function initApp(geoData, execData) {
     // Forced start date: June 2017 (Month 5 is June)
     const minTime = new Date(2017, 5, 1).getTime();
     let maxTime = featuresWithTime[featuresWithTime.length - 1].properties._timestamp;
-    
+
     // Ensure maxTime is at least minTime to avoid errors if data is old
     if (maxTime < minTime) maxTime = minTime;
 
@@ -253,6 +254,7 @@ function initApp(geoData, execData) {
 
     // 5. Event Listeners
     slider.addEventListener('input', (e) => {
+        if (!hasInteracted) hasInteracted = true;
         const val = parseInt(e.target.value, 10);
         updateMap(val);
     });
@@ -350,7 +352,7 @@ function initBudgetChart() {
                 fontFamily: 'Open Sans, sans-serif',
                 fontSize: getLabelFontSize(),
                 formatter: (value) => {
-                    return value >= 1000000 ? (value / 1000000).toFixed(1) + 'M€' : (value / 1000).toFixed(0) + 'k€';
+                    return value >= 1000000 ? (value / 1000000).toFixed(0) + 'M€' : (value / 1000).toFixed(0) + 'k€';
                 }
             }
         },
@@ -593,24 +595,26 @@ function updateMap(stepIndex) {
     // Update Budget Chart & KPI
     updateBudgetChart(stepIndex);
 
-    // Set of IDs that SHOULD be visible
     const visibleIds = new Set();
 
-    visibleFeatures.forEach(feature => {
-        const id = feature.properties.id || feature.properties._uniqueId;
-        visibleIds.add(id);
+    // Only show markers if user has interacted (Play or Slider)
+    if (hasInteracted) {
+        visibleFeatures.forEach(feature => {
+            const id = feature.properties.id || feature.properties._uniqueId;
+            visibleIds.add(id);
 
-        // If not currently active, add it (New Marker)
-        if (!activeMarkers.has(id)) {
-            const marker = createMarker(feature);
+            // If not currently active, add it (New Marker)
+            if (!activeMarkers.has(id)) {
+                const marker = createMarker(feature);
 
-            // Add animation class to the path element
-            marker.options.className = 'marker-pop-in';
+                // Add animation class to the path element
+                marker.options.className = 'marker-pop-in';
 
-            markersLayer.addLayer(marker);
-            activeMarkers.set(id, marker);
-        }
-    });
+                markersLayer.addLayer(marker);
+                activeMarkers.set(id, marker);
+            }
+        });
+    }
 
     // Remove markers that are no longer visible (User scrolled back)
     for (const [id, marker] of activeMarkers) {
@@ -631,6 +635,12 @@ function togglePlay() {
     isPlaying = !isPlaying;
 
     if (isPlaying) {
+        // First play interaction: Show initial markers immediately
+        if (!hasInteracted) {
+            hasInteracted = true;
+            updateMap(parseInt(slider.value));
+        }
+
         // Change icon to Pause (Filled)
         playBtn.innerHTML = `
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="none" xmlns="http://www.w3.org/2000/svg">
@@ -697,7 +707,8 @@ Promise.all([
             color: '#FFFFFF',
             weight: 3, // Increased thickness
             fillColor: 'transparent',
-            fillOpacity: 0
+            fillOpacity: 0,
+            className: 'map-animate-enter' // Add entrance animation
         },
         pane: 'basemapPane',
         interactive: false // No popups/clicks on bg

@@ -79,6 +79,8 @@ body {
     width: 100%;
     pointer-events: none;
     /* Container passes clicks */
+    margin-top: 7.5rem;
+    /* Push below banner */
 }
 
 /* Glass Panel Utility (Shared style) */
@@ -105,12 +107,28 @@ body {
     width: 100%;
 }
 
-/* Header Specifics */
-.header {
-    padding: 1.5rem 2rem;
-    padding-left: 3rem;
-    /* Offset logo 3rem to the right */
-    animation: fadeInDown 0.8s ease-out;
+/* Top Banner */
+.top-banner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 7.5rem;
+    background-color: #000000;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    padding: 0 3rem;
+    /* logo offset */
+}
+
+.banner-logo {
+    height: auto;
+    max-height: 4rem;
+    /* Fit within 7.5rem with space */
+    width: auto;
+    max-width: 15rem;
+    object-fit: contain;
 }
 
 #chart-container,
@@ -324,19 +342,21 @@ input[type=range]::-webkit-slider-thumb:active {
 /* Main Centered Title */
 .main-title {
     position: absolute;
-    top: 2rem;
     left: 50%;
-    transform: translateX(-50%);
+    top: 50%;
+    transform: translate(-50%, -50%);
+    /* Center Horizontally and Vertically in banner */
     font-family: 'Open Sans Bold', sans-serif;
-    font-size: 2.5rem;
+    font-size: 1.8rem;
+    /* Adjusted for banner fit */
     color: var(--text-primary);
     text-align: center;
     pointer-events: none;
-    z-index: 10;
-    width: 80%;
-    /* Prevent text from touching edges on small screens */
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-    /* Improve readability over map */
+    z-index: 501;
+    /* Above banner bg */
+    width: auto;
+    white-space: nowrap;
+    margin: 0;
 }
 
 
@@ -356,6 +376,25 @@ input[type=range]::-webkit-slider-thumb:active {
 
 .marker-pop-in {
     animation: pop-in 0.2s ease-out forwards;
+    transform-origin: center;
+    transform-box: fill-box;
+}
+
+/* Map Entry Animation (Spain.geojson) */
+@keyframes map-enter {
+    0% {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.map-animate-enter {
+    animation: map-enter 2s ease-out forwards;
     transform-origin: center;
     transform-box: fill-box;
 }

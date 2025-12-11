@@ -27,13 +27,16 @@
     <div id="app">
         <div id="map"></div>
 
-        <div class="ui-overlay">
+        <!-- Top Banner (Logo + Title) -->
+        <div class="top-banner">
+            <img src="logo.png" alt="Logo" class="banner-logo">
             <h1 class="main-title">Historial de expedientes de gasto para reposición de servicios afectados</h1>
+        </div>
 
+        <div class="ui-overlay">
+            
             <div class="sidebar">
-                <header class="header">
-                    <img src="logo.png" alt="Logo" style="max-width: 15rem; height: auto;">
-                </header>
+                <!-- Header removed, contents moved to top-banner -->
 
                 <div id="chart-container"></div>
 
