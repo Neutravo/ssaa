@@ -203,8 +203,12 @@ function initApp(geoData, execData) {
     }
 
     // 2. Determine Time Range & Steps
-    const minTime = featuresWithTime[0].properties._timestamp;
-    const maxTime = featuresWithTime[featuresWithTime.length - 1].properties._timestamp;
+    // Forced start date: June 2017 (Month 5 is June)
+    const minTime = new Date(2017, 5, 1).getTime();
+    let maxTime = featuresWithTime[featuresWithTime.length - 1].properties._timestamp;
+    
+    // Ensure maxTime is at least minTime to avoid errors if data is old
+    if (maxTime < minTime) maxTime = minTime;
 
     monthlySteps = generateMonthlySteps(minTime, maxTime);
 
